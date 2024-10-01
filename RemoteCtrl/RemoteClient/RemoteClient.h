@@ -15,7 +15,7 @@
 // 有关此类的实现，请参阅 RemoteClient.cpp
 //
 
-class CRemoteClientApp : public CWinApp
+class CRemoteClientApp : public CWinApp   
 {
 public:
 	CRemoteClientApp();
