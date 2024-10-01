@@ -13,7 +13,7 @@
 #endif
 
 
-// 用于应用程序“关于”菜单项的 CAboutDlg 对话框  提交测试
+// 用于应用程序“关于”菜单项的 CAboutDlg 对话框  提交测试1111
 
 class CAboutDlg : public CDialogEx
 {
