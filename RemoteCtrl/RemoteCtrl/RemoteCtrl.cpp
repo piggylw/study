@@ -6,11 +6,29 @@
 #include "RemoteCtrl.h"
 #include "ServerSocket.h"
 #include <direct.h>
+#include <io.h>
+#include <list>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+typedef struct file_info
+{
+    file_info()
+    {
+        IsInvalid = FALSE;
+        IsDirectory = -1;
+        HasNext = TRUE;
+        memset(szFileName, 0, sizeof(szFileName));
+    }
+
+    BOOL IsInvalid;//是否有效
+    BOOL IsDirectory;
+    BOOL HasNext;//是否还有后续，0没有，1有
+    char szFileName[256];
+    
+}FILEINFO,*PFILEINFO;
 
 // 唯一的应用程序对象
 
@@ -55,6 +73,55 @@ int MakeDriverInfo()//1-A盘 2-B 3-C .....26-z
     return 0;
 }
 
+
+
+int MakeDirectoryInfo()
+{
+    std::string strPath;
+    //std::list<FILEINFO>  listFileInfos;
+    if (CServerSocket::getInstance()->GetFilePath(strPath) == false)
+    {
+        OutputDebugString(_T("CServerSocket::getInstance()->GetFilePath(strPath) == false"));
+        return -1;
+    }
+    if (_chdir(strPath.c_str()) != 0)
+    {
+        FILEINFO finfo;
+        finfo.IsInvalid = TRUE;
+        finfo.IsDirectory = TRUE;
+        finfo.HasNext = FALSE;
+        memcpy(finfo.szFileName, strPath.c_str(), strPath.size());
+        //listFileInfos.push_back(finfo);
+        CPacket pack(2, (BYTE*) & finfo, sizeof(finfo));
+        CServerSocket::getInstance()->SendData(pack);
+        OutputDebugString(_T("访问不了目录"));
+        return -2;
+    }
+    _finddata_t fdata;
+    int hfind = 0;
+    if ((hfind = _findfirst("*", &fdata)) == -1)
+    {
+        OutputDebugString(_T("没有文件"));
+        return -3;
+    }
+    do
+    {
+        FILEINFO finfo;
+        finfo.IsDirectory = (fdata.attrib & _A_SUBDIR) != 0;
+        memcpy(finfo.szFileName, fdata.name, strlen(fdata.name));
+        //listFileInfos.push_back(finfo);
+        CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+        CServerSocket::getInstance()->SendData(pack);
+    } while (_findnext(hfind,&fdata) == 0);
+
+    FILEINFO finfo;
+    finfo.HasNext = FALSE;
+    CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+    CServerSocket::getInstance()->SendData(pack);
+
+    return 0;
+}
+
 int main()
 {
     int nRetCode = 0;
@@ -93,8 +160,17 @@ int main()
                 }
                 int ret = pserver->DealCommand();
             }*/
+            int nCmd = 1;
+            switch (nCmd)
+            {
+            case 1://查看磁盘分区
+                MakeDriverInfo();
+                break;
+            case 2://查看指定目录下的文件
+                MakeDirectoryInfo();
+                break;
+            }
 
-            MakeDriverInfo();
         }
     }
     else
