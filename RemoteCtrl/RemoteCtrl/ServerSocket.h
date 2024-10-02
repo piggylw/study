@@ -45,7 +45,7 @@ public:
 			memcpy((void*)strData.c_str(), pData + i, nLength - 2 - 2);
 			i += nLength - 4;
 		}
-		sSum = *(DWORD*)(pData + i);i += 2;
+		sSum = *(WORD*)(pData + i);i += 2;
 
 		WORD sum = 0;
 		for (size_t j = 0; j < strData.size(); j++)
@@ -54,7 +54,7 @@ public:
 		}
 		if (sum == sSum)
 		{  
-			nSize = i;
+			nSize = i;//因为可能有不用的数据，所以用i
 			return;
 		}
 		nSize = 0;
