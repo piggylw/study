@@ -77,7 +77,7 @@ public:
 		}
 		if (sum == sSum)
 		{  
-			nSize = i;//因为可能有不用的数据，所以用i
+			nSize = i;//因为可能有不用的数据，所以用i！！！！！
 			return;
 		}
 		nSize = 0;
@@ -189,7 +189,7 @@ public:
 		{
 			return -1;
 		}
-		char* buffer = new char[BUFFER_SIZE];
+		char* buffer = new char[BUFFER_SIZE]; //delete
 		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true)
@@ -222,7 +222,7 @@ public:
 		return false;
 	}
 
-	bool GetMouseEvetn(MOUSEEV& mouse)
+	bool GetMouseEvent(MOUSEEV& mouse)
 	{
 		if (m_packet.sCmd == 5)
 		{

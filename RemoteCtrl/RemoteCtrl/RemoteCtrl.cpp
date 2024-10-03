@@ -9,6 +9,7 @@
 #include <io.h>
 #include <list>
 #include <atlimage.h>
+#include "LockDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -170,7 +171,7 @@ int DownLoadFile()
 int MouseEvent()
 {
     MOUSEEV mouse;
-    if (CServerSocket::getInstance()->GetMouseEvetn(mouse))
+    if (CServerSocket::getInstance()->GetMouseEvent(mouse))
     {
         DWORD nFlags = 0;
         switch (mouse.nButton)
@@ -313,8 +314,33 @@ int UnlockMachine()
     return 0;
 }
 
+CLockDialog dlg;
+
 int LockMachine()
 {
+    dlg.Create(IDD_DIALOG_INFO, NULL);
+    dlg.ShowWindow(SW_SHOW);
+    dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+    MSG msg;
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+        if (msg.message == WM_KEYDOWN)
+        {
+            if (msg.wParam == 0x1B)
+            {
+                break;
+            }
+           
+        }
+        //else if (msg.message == WM_RBUTTONDOWN)
+        //{
+        //    CStatic* info = (CStatic*)dlg.GetDlgItem(IDC_STATIC_INFO);
+        //    info->SetWindowTextW(_T("你好"));
+        //}
+    }
+    dlg.DestroyWindow();
     return 0;
 }
 
@@ -356,7 +382,9 @@ int main()
                 }
                 int ret = pserver->DealCommand();
             }*/
-            int nCmd = 6;
+            
+            
+            int nCmd = 7;
             switch (nCmd)
             {
             case 1://查看磁盘分区
