@@ -385,7 +385,53 @@ int UnlockMachine()
     return 0;
 }
 
+int TestConnect()
+{
+    CPacket pack(1981, NULL, 0);
+    CServerSocket::getInstance()->SendData(pack);
+    return 0;
+}
 
+int ExecuteCmd(int nCmd)
+{
+    int ret = 0;
+    switch (nCmd)
+    {
+    case 1://查看磁盘分区
+        ret=MakeDriverInfo();
+        break;
+    case 2://查看指定目录下的文件
+        ret = MakeDirectoryInfo();
+        break;
+    case 3://打开文件
+        ret = RunFile();
+        break;
+    case 4://下载文件
+        ret = DownLoadFile();
+        break;
+    case 5://鼠标操作
+        ret = MouseEvent();
+        break;
+
+    case 6://发送屏幕内容
+        ret = SendScreen();
+        break;
+
+    case 7://锁机
+        ret = LockMachine();
+        //Sleep(60);
+        break;
+    case 8://解锁
+        ret = UnlockMachine();
+        break;
+
+    case 1981:
+        ret = TestConnect();
+        break;
+
+    }
+    return ret;
+}
 int main()
 {
     int nRetCode = 0;
@@ -403,7 +449,7 @@ int main()
         }
         else
         {
-            /*CServerSocket* pserver = CServerSocket::getInstance();
+            CServerSocket* pserver = CServerSocket::getInstance();
             int count = 0;
             if (pserver->InitSocket() == false)
             {
@@ -422,48 +468,19 @@ int main()
                     MessageBox(NULL, _T("无法ACCEPT，自动重试"), _T("ACCEPT用户失败！"), MB_OK | MB_ICONERROR);
                     count++;
                 }
+                TRACE("Accept return true\r\n");
                 int ret = pserver->DealCommand();
-            }*/
-            
-            
-            int nCmd = 7;
-            switch (nCmd)
-            {
-            case 1://查看磁盘分区
-                MakeDriverInfo();
-                break;
-            case 2://查看指定目录下的文件
-                MakeDirectoryInfo();
-                break;
-            case 3://打开文件
-                RunFile();
-                break;
-            case 4://下载文件
-                DownLoadFile();
-                break;
-            case 5://鼠标操作
-                MouseEvent();
-                break;
-
-            case 6://发送屏幕内容
-                SendScreen();
-                break;
-
-            case 7://锁机
-                LockMachine();
-                //Sleep(60);
-                break;
-            case 8://解锁
-                UnlockMachine();
-                break;
-
-            }
-            Sleep(3000);
-            UnlockMachine();
-            TRACE("mhwnd=%08X\n", dlg.m_hWnd);
-            while (dlg.m_hWnd != NULL)
-            {
-                Sleep(10);
+                TRACE("DealCommand ret:%d\r\n",ret);
+                if (ret > 0)
+                {
+                    ret = ExecuteCmd(ret);
+                    if (ret != 0)
+                    {
+                        TRACE("执行失败:%d ret=%d\r\n", pserver->GetPacket().sCmd, ret);
+                    }
+                    pserver->CloseClient();
+                    TRACE("pserver->CloseClient()");
+                }
             }
 
         }

@@ -178,7 +178,9 @@ public:
 	{
 		sockaddr_in client_adr;
 		int cli_sz = sizeof(client_adr);
+		TRACE("----------------ready accept------------\r\n");
 		m_client = accept(m_socket, (sockaddr*)&client_adr, &cli_sz);
+		TRACE("----------------m_client=%d\r\n", m_client);
 		if (m_client == -1)return false;
 		return true;
 	}
@@ -189,7 +191,12 @@ public:
 		{
 			return -1;
 		}
-		char* buffer = new char[BUFFER_SIZE]; //delete
+		char* buffer = new char[BUFFER_SIZE]; //deleteÄÚ´æÐ¹Â©
+		if (buffer == NULL)
+		{
+			TRACE("ÄÚ´æ²»×ã\r\n");
+			return -2;
+		}
 		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true)
@@ -197,8 +204,10 @@ public:
 			size_t len = recv(m_client, buffer+index, BUFFER_SIZE -index, 0);
 			if (len<=0)
 			{
+				delete[] buffer;
 				return -1;
 			}
+			TRACE("recv %d\r\n", len);
 			index += len;
 			len = index;
 			m_packet = CPacket((BYTE*)buffer,len);
@@ -206,9 +215,12 @@ public:
 			{
 				memmove(buffer, buffer + len, BUFFER_SIZE - len);
 				index -= len;
+				delete[] buffer;
 				return m_packet.sCmd;
+				//return 0;
 			}
 		}
+		delete[] buffer;
 		return -1;
 	}
 
@@ -249,7 +261,16 @@ public:
 		}
 		return send(m_client, pack.Data(), pack.Size(), 0) > 0;
 	}
+	CPacket& GetPacket()
+	{
+		return m_packet;
+	}
 
+	void CloseClient()
+	{
+		closesocket(m_client);
+		m_client = INVALID_SOCKET;//-1
+	}
 private:
 	SOCKET m_socket;
 	SOCKET m_client;

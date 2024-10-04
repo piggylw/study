@@ -4,6 +4,7 @@
 #include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <vector>
 
 #pragma pack(push)
 #pragma pack(1)
@@ -142,20 +143,8 @@ typedef struct MouseEvent {
 	POINT ptXY;
 }MOUSEEV, * PMOUSEEV;
 
-std::string GetErrorInfo(int wsaErrCode)
-{
-	std::string ret;
-	LPVOID lpMsgbuf = NULL;
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-		NULL,
-		wsaErrCode,
-		MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgbuf,0,NULL
-		);
-	ret = (char*)lpMsgbuf;
-	LocalFree(lpMsgbuf);
-	return ret;
-}
+std::string GetErrInfo(int wsaErrCode);
+
 
 class CClientSocket
 {
@@ -172,13 +161,15 @@ public:
 	bool InitSocket(const std::string& strIPAddress)
 	{
 		//校验
+		if (m_socket != INVALID_SOCKET)CloseSocket();
+		m_socket = socket(PF_INET, SOCK_STREAM, 0);
 		if (m_socket == -1)return false;
 
 		sockaddr_in serv_adr;
 		memset(&serv_adr, 0, sizeof(serv_adr));
 		serv_adr.sin_family = AF_INET;
 		//serv_adr.sin_addr.S_un.S_addr = inet_pton(strIPAddress.c_str());
-		inet_pton(AF_INET,strIPAddress.c_str(),(void*)serv_adr.sin_addr.S_un.S_addr);
+		inet_pton(AF_INET,strIPAddress.c_str(),(void*)&serv_adr.sin_addr);
 
 		serv_adr.sin_port = htons(9999);
 		if (serv_adr.sin_addr.s_addr == INADDR_NONE)
@@ -190,8 +181,8 @@ public:
 		int ret = connect(m_socket,(sockaddr*)&serv_adr,sizeof(serv_adr));
 		if (ret == -1)
 		{
-			AfxMessageBox("连接失败");
-			TRACE("连接失败:%d %s\r\n",WSAGetLastError(),GetErrorInfo(WSAGetLastError()).c_str());
+			//AfxMessageBox("连接失败");
+			TRACE("连接失败:%d %s\r\n",WSAGetLastError(),GetErrInfo(WSAGetLastError()).c_str());
 			return false;
 		}
 		return true;
@@ -204,7 +195,7 @@ public:
 		{
 			return -1;
 		}
-		char* buffer = new char[BUFFER_SIZE]; //delete
+		char* buffer = m_buffer.data();
 		memset(buffer, 0, BUFFER_SIZE);
 		size_t index = 0;
 		while (true)
@@ -258,14 +249,25 @@ public:
 
 	bool SendData(CPacket& pack)
 	{
+		TRACE("m_socket =%d\r\n",m_socket);
 		if (m_socket == -1)
 		{
 			return false;
 		}
 		return send(m_socket, pack.Data(), pack.Size(), 0) > 0;
 	}
+	CPacket& GetPacket()
+	{
+		return m_packet;
+	}
+	void CloseSocket()
+	{
+		closesocket(m_socket);
+		m_socket = INVALID_SOCKET;
+	}
 
 private:
+	std::vector<char> m_buffer;
 	SOCKET m_socket;
 	CPacket m_packet;
 	CClientSocket& operator=(const CClientSocket& ss)
@@ -283,7 +285,7 @@ private:
 			MessageBox(NULL, _T("无法初始化套接字环境"), _T("初始化错误！"), MB_OK | MB_ICONERROR);
 			exit(0);
 		}
-		m_socket = socket(PF_INET, SOCK_STREAM, 0);
+		m_buffer.resize(BUFFER_SIZE);
 		//MessageBox(NULL, _T("成功初始化套接字环境"), _T("初始化成功！"), MB_OK);
 	}
 	~CClientSocket()
