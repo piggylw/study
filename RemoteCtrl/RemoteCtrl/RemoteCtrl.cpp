@@ -479,7 +479,7 @@ int main()
                         TRACE("执行失败:%d ret=%d\r\n", pserver->GetPacket().sCmd, ret);
                     }
                     pserver->CloseClient();
-                    TRACE("pserver->CloseClient()");
+                    TRACE("pserver->CloseClient()\r\n");
                 }
             }
 
