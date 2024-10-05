@@ -64,6 +64,27 @@ void CRemoteClientDlg::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_IPAddress(pDX, IDC_IPADDRESS_SERVER, m_server_address);
 	DDX_Text(pDX, IDC_EDIT1_PORT, m_port);
+	DDX_Control(pDX, IDC_TREE_DIR, m_tree);
+}
+
+int CRemoteClientDlg::SendCommandPacket(int nCmd, BYTE* pData, size_t nLength)
+{
+	UpdateData();
+	// TODO: 在此添加控件通知处理程序代码
+	CClientSocket* pClient = CClientSocket::getInstance();
+	bool ret = pClient->InitSocket(m_server_address, atoi(m_port));
+	if (!ret)
+	{
+		AfxMessageBox("网络初始化失败");
+		return -1;
+	}
+	CPacket pack(nCmd, pData, nLength);
+	ret = pClient->SendData(pack);
+	TRACE("send ret=%d\r\n", ret);
+	int cmd = pClient->DealCommand();
+	TRACE("ack:%d\r\n", cmd);
+	pClient->CloseSocket();
+	return cmd;
 }
 
 BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
@@ -71,6 +92,7 @@ BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CRemoteClientDlg::OnBnClickedButtonTest)
+	ON_BN_CLICKED(IDC_BUTTON_FILEINFO, &CRemoteClientDlg::OnBnClickedButtonFileinfo)
 END_MESSAGE_MAP()
 
 
@@ -167,19 +189,32 @@ HCURSOR CRemoteClientDlg::OnQueryDragIcon()
 
 void CRemoteClientDlg::OnBnClickedButtonTest()
 {
-	UpdateData();
-	// TODO: 在此添加控件通知处理程序代码
-	CClientSocket* pClient = CClientSocket::getInstance();
-	bool ret  = pClient->InitSocket(m_server_address,atoi(m_port));
-	if (!ret)
+	SendCommandPacket(1981);
+}
+
+
+void CRemoteClientDlg::OnBnClickedButtonFileinfo()
+{
+	int ret = SendCommandPacket(1);
+	if (ret == -1)
 	{
-		AfxMessageBox("网络初始化失败");
+		AfxMessageBox("命令处理失败");
 		return;
 	}
-	CPacket pack(1981, NULL, 0);
-	ret = pClient->SendData(pack);
-	TRACE("send ret=%d\r\n", ret);
-	int cmd = pClient->DealCommand();
-	TRACE("ack:%d\r\n", cmd);
-	pClient->CloseSocket();
+	m_tree.DeleteAllItems();
+	CClientSocket* pClient = CClientSocket::getInstance();
+	std::string drivers = pClient->GetPacket().strData;
+	std::string dr;
+	for (size_t i = 0; i < drivers.size(); i++)
+	{
+		if (drivers[i] == ',')
+		{
+			dr += ":";
+			m_tree.InsertItem(dr.c_str(),TVI_ROOT,TVI_LAST);
+			dr.clear();
+			continue;
+		}
+		dr += drivers[i];
+	}
+
 }

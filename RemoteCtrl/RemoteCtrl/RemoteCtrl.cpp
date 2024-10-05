@@ -62,16 +62,19 @@ int MakeDriverInfo()//1-A盘 2-B 3-C .....26-z
     {
         if (_chdrive(i) == 0)
         {
-            if (result.size()>0)
-            {
-                result += ",";
-            }
+            //if (result.size()>0)
+            //{
+            //    result += ",";
+            //}
+            //result += 'A' + i - 1;
             result += 'A' + i - 1;
+            result += ",";
         }
     }
+    TRACE("MakeDriverInfo() result=%s\r\n", result.c_str());
     CPacket pack(1, (BYTE*)result.c_str(), result.size());//打包用的
     Dump((BYTE*)pack.Data(), pack.nLength + 6);
-    //CServerSocket::getInstance()->SendData(pack);
+    CServerSocket::getInstance()->SendData(pack);
     return 0;
 }
 
