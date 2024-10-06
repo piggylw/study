@@ -32,6 +32,7 @@ private:
 
 	CString GetPath(HTREEITEM hTree);
 	void DeleteTreeChildItem(HTREEITEM hTreeSelect);
+	void LoadFileInfo();
 // 实现
 protected:
 	HICON m_hIcon;
@@ -49,4 +50,11 @@ public:
 	afx_msg void OnBnClickedButtonFileinfo();
 	CTreeCtrl m_tree;
 	afx_msg void OnNMDblclkTreeDir(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnNMClickTreeDir(NMHDR* pNMHDR, LRESULT* pResult);
+	// //显示文件
+	CListCtrl m_list;
+	afx_msg void OnNMRClickListFile(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnDownloadFile();
+	afx_msg void OnDelteteFile();
+	afx_msg void OnRunFile();
 };
