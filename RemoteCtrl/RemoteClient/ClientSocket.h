@@ -213,12 +213,11 @@ public:
 			return -1;
 		}
 		char* buffer = m_buffer.data();
-		memset(buffer, 0, BUFFER_SIZE);
-		size_t index = 0;
+		static size_t index = 0;
 		while (true)
 		{
 			size_t len = recv(m_socket, buffer + index, BUFFER_SIZE - index, 0);
-			if (len <= 0)
+			if ((len <= 0) && (index == 0))
 			{
 				return -1;
 			}
@@ -227,7 +226,7 @@ public:
 			m_packet = CPacket((BYTE*)buffer, len);
 			if (len > 0)
 			{
-				memmove(buffer, buffer + len, BUFFER_SIZE - len);
+				memmove(buffer, buffer + len, index - len);
 				index -= len;
 				return m_packet.sCmd;
 			}
@@ -303,6 +302,7 @@ private:
 			exit(0);
 		}
 		m_buffer.resize(BUFFER_SIZE);
+		memset(m_buffer.data(), 0, BUFFER_SIZE);
 		//MessageBox(NULL, _T("成功初始化套接字环境"), _T("初始化成功！"), MB_OK);
 	}
 	~CClientSocket()

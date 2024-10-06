@@ -176,7 +176,7 @@ int MouseEvent()
         case 4://没有按键
             nFlags = 8;
             break;
-
+        
         }
         if (nFlags != 8)
         {
@@ -374,6 +374,19 @@ int UnlockMachine()
     return 0;
 }
 
+int DeleteLocalFile()
+{
+    std::string strPath;
+    CServerSocket::getInstance()->GetFilePath(strPath);
+    //TCHAR sPath[MAX_PATH] = _T("");
+    //mbstowcs(sPath, strPath.c_str(), strPath.size());
+    DeleteFileA(strPath.c_str());
+    CPacket pack(9, NULL, 0);
+    bool ret = CServerSocket::getInstance()->SendData(pack);
+    TRACE("DeleteLocalFile() send ret =%d\r\n", ret);
+    return 0;
+}
+
 int TestConnect()
 {
     CPacket pack(1981, NULL, 0);
@@ -413,7 +426,9 @@ int ExecuteCmd(int nCmd)
     case 8://解锁
         ret = UnlockMachine();
         break;
-
+    case 9:
+        ret = DeleteLocalFile();
+        break;
     case 1981:
         ret = TestConnect();
         break;
