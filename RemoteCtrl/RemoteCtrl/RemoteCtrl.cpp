@@ -15,22 +15,7 @@
 #define new DEBUG_NEW
 #endif
 
-typedef struct file_info
-{
-    file_info()
-    {
-        IsInvalid = FALSE;
-        IsDirectory = -1;
-        HasNext = TRUE;
-        memset(szFileName, 0, sizeof(szFileName));
-    }
 
-    BOOL IsInvalid;//是否有效
-    BOOL IsDirectory;
-    BOOL HasNext;//是否还有后续，0没有，1有
-    char szFileName[256];
-    
-}FILEINFO,*PFILEINFO;
 
 // 唯一的应用程序对象
 
@@ -90,10 +75,7 @@ int MakeDirectoryInfo()
     if (_chdir(strPath.c_str()) != 0)
     {
         FILEINFO finfo;
-        finfo.IsInvalid = TRUE;
-        finfo.IsDirectory = TRUE;
         finfo.HasNext = FALSE;
-        memcpy(finfo.szFileName, strPath.c_str(), strPath.size());
         //listFileInfos.push_back(finfo);
         CPacket pack(2, (BYTE*) & finfo, sizeof(finfo));
         CServerSocket::getInstance()->SendData(pack);
@@ -105,6 +87,10 @@ int MakeDirectoryInfo()
     if ((hfind = _findfirst("*", &fdata)) == -1)
     {
         OutputDebugString(_T("没有文件"));
+        FILEINFO finfo;
+        finfo.HasNext = FALSE;
+        CPacket pack(2, (BYTE*)&finfo, sizeof(finfo));
+        CServerSocket::getInstance()->SendData(pack);
         return -3;
     }
     do

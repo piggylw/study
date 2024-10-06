@@ -128,6 +128,22 @@ public:
 };
 
 #pragma pack(pop)
+typedef struct file_info
+{
+	file_info()
+	{
+		IsInvalid = FALSE;
+		IsDirectory = -1;
+		HasNext = TRUE;
+		memset(szFileName, 0, sizeof(szFileName));
+	}
+
+	BOOL IsInvalid;//是否有效
+	BOOL IsDirectory;
+	BOOL HasNext;//是否还有后续，0没有，1有
+	char szFileName[256];
+
+}FILEINFO, * PFILEINFO;
 
 typedef struct MouseEvent {
 
