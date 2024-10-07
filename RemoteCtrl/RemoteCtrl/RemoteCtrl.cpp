@@ -367,7 +367,7 @@ int LockMachine()
 
 int UnlockMachine()
 {
-    //SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x01E0001);不能跨线程发送消息
+    //::SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x01E0001);不能跨线程发送消息
     PostThreadMessage(threadid,WM_KEYDOWN,0x41,0);
     CPacket pack(8, NULL, 0);
     CServerSocket::getInstance()->SendData(pack);

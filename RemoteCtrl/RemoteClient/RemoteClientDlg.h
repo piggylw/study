@@ -3,7 +3,9 @@
 //
 
 #pragma once
+#include "StatusDlg.h"
 
+#define WM_SEND_PACKET (WM_USER+1)
 
 // CRemoteClientDlg 对话框
 class CRemoteClientDlg : public CDialogEx
@@ -40,9 +42,12 @@ private:
 	void DeleteTreeChildItem(HTREEITEM hTreeSelect);
 	void LoadFileInfo();
 	void LoadFileCurrent();
+	static void threadEntryForDownFile(void*);
+	void threadDownFile();
 // 实现
 protected:
 	HICON m_hIcon;
+	CStatusDlg m_dlgStatus;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -64,4 +69,5 @@ public:
 	afx_msg void OnDownloadFile();
 	afx_msg void OnDelteteFile();
 	afx_msg void OnRunFile();
+	afx_msg LRESULT OnSendPacket(WPARAM wParam, LPARAM lParam);
 };
