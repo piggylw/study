@@ -205,7 +205,7 @@ public:
 		return true;
 	}
 
-#define BUFFER_SIZE 4096
+#define BUFFER_SIZE 4096000
 	int DealCommand()
 	{
 		if (m_socket == -1)
@@ -217,7 +217,7 @@ public:
 		while (true)
 		{
 			size_t len = recv(m_socket, buffer + index, BUFFER_SIZE - index, 0);
-			if ((len <= 0) && (index == 0))
+			if ((len <= 0) && (index <= 0))
 			{
 				return -1;
 			}

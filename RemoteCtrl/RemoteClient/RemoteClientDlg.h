@@ -44,6 +44,9 @@ private:
 	void LoadFileCurrent();
 	static void threadEntryForDownFile(void*);
 	void threadDownFile();
+
+	static void threadEntryForWatchData(void*);
+	void threadWatchData();
 // 实现
 protected:
 	HICON m_hIcon;
@@ -55,6 +58,22 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	bool isFull() const
+	{
+		return m_isFull;
+	}
+	CImage& GetImage()
+	{
+		return m_image;
+	}
+	void SetImageStatus(bool isFull = false)
+	{
+		m_isFull = isFull;
+	}
+private:
+	CImage m_image;//图片缓存
+	bool m_isFull;//缓存有无数据，true有
 public:
 	afx_msg void OnBnClickedButtonTest();
 	DWORD m_server_address;
@@ -70,4 +89,6 @@ public:
 	afx_msg void OnDelteteFile();
 	afx_msg void OnRunFile();
 	afx_msg LRESULT OnSendPacket(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedButtonStartwatch();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

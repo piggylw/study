@@ -271,7 +271,9 @@ int SendScreen()
     int nWidth = GetDeviceCaps(hScreen, HORZRES);
     int nHeight = GetDeviceCaps(hScreen, VERTRES);
     screen.Create(nWidth, nHeight, nBitPerPixel);
-    BitBlt(screen.GetDC(), 0, 0,2880,1800,hScreen,0,0,SRCCOPY);
+    //BitBlt(screen.GetDC(), 0, 0, 1920,1080,hScreen,0,0,SRCCOPY);
+    BitBlt(screen.GetDC(), 0, 0, nWidth,nHeight,hScreen,0,0,SRCCOPY);
+    TRACE("nwidth=%d nheight=%d\r\n", nWidth, nHeight);
     ReleaseDC(NULL,hScreen);
     HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0);
     if (hMem == NULL)return -1;
@@ -285,6 +287,7 @@ int SendScreen()
         PBYTE pData = (PBYTE)GlobalLock(hMem);
         SIZE_T nSize = GlobalSize(hMem);
         CPacket pack(6, pData, nSize);
+        TRACE("SendScreen() nsize=%d\r\n",nSize);
         CServerSocket::getInstance()->SendData(pack);
         GlobalUnlock(hMem);
     }
@@ -367,7 +370,7 @@ int LockMachine()
 
 int UnlockMachine()
 {
-    //::SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x01E0001);不能跨线程发送消息
+    //SendMessage(dlg.m_hWnd, WM_KEYDOWN, 0x41, 0x01E0001);不能跨线程发送消息
     PostThreadMessage(threadid,WM_KEYDOWN,0x41,0);
     CPacket pack(8, NULL, 0);
     CServerSocket::getInstance()->SendData(pack);

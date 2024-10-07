@@ -8,6 +8,7 @@
 #include "RemoteClientDlg.h"
 #include "afxdialogex.h"
 #include "ClientSocket.h"
+#include "WatchDialog.h"
 
 
 #ifdef _DEBUG
@@ -72,6 +73,7 @@ void CRemoteClientDlg::DoDataExchange(CDataExchange* pDX)
 int CRemoteClientDlg::SendCommandPacket(int nCmd,bool bAutoClose, BYTE* pData, size_t nLength)
 {
 	UpdateData();
+	
 	// TODO: 在此添加控件通知处理程序代码
 	CClientSocket* pClient = CClientSocket::getInstance();
 	bool ret = pClient->InitSocket(m_server_address, atoi(m_port));
@@ -102,6 +104,8 @@ BEGIN_MESSAGE_MAP(CRemoteClientDlg, CDialogEx)
 	ON_COMMAND(ID_DELTETE_FILE, &CRemoteClientDlg::OnDelteteFile)
 	ON_COMMAND(ID_RUN_FILE, &CRemoteClientDlg::OnRunFile)
 	ON_MESSAGE(WM_SEND_PACKET,&CRemoteClientDlg::OnSendPacket)
+	ON_BN_CLICKED(IDC_BUTTON_STARTWATCH, &CRemoteClientDlg::OnBnClickedButtonStartwatch)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -144,6 +148,8 @@ BOOL CRemoteClientDlg::OnInitDialog()
 
 	m_dlgStatus.Create(IDD_DIALOG_STATUS, this);
 	m_dlgStatus.ShowWindow(SW_HIDE);
+
+	m_isFull = false;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -489,7 +495,102 @@ void CRemoteClientDlg::OnRunFile()
 
 LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)
 {
-	CString strFile = (LPCSTR)lParam;
-	int ret = SendCommandPacket(wParam>>1, wParam&1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+	int ret = 0;
+	int cmd = wParam >> 1;
+	switch (cmd)
+	{
+	case 4:
+	{
+		CString strFile = (LPCSTR)lParam;
+		ret = SendCommandPacket(cmd, wParam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+	}
+		break;
+	case 6:
+	{
+		ret = SendCommandPacket(cmd, wParam & 1);
+	}
+		break;
+	default:
+		ret = -1;
+	}
+	
 	return ret;
+}
+
+
+void CRemoteClientDlg::threadEntryForWatchData(void* arg)
+{
+	CRemoteClientDlg* thiz = (CRemoteClientDlg*)arg;
+	thiz->threadWatchData();
+	_endthread();
+}
+void CRemoteClientDlg::threadWatchData()
+{
+	Sleep(50);
+	CClientSocket* pClient = NULL;
+	do
+	{
+		pClient = CClientSocket::getInstance();
+	} while (pClient == NULL);
+	ULONGLONG tick = GetTickCount64();
+	for (;;)
+	{
+
+		if (m_isFull == false)
+		{
+			int ret = SendMessage(WM_SEND_PACKET, 6 << 1 | 1);
+			if (ret == 6)
+			{
+			
+				BYTE* pData = (BYTE*)pClient->GetPacket().strData.c_str();
+				HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0);
+				if (hMem == NULL)
+				{
+					TRACE("HGLOBAL hMem = GlobalAlloc(GMEM_MOVEABLE, 0)");
+					Sleep(1);
+					continue;
+				}
+				IStream* pStream = NULL;
+				HRESULT hRet = CreateStreamOnHGlobal(hMem, true, &pStream);
+				if (hRet == S_OK)
+				{
+					ULONG length = 0;
+					pStream->Write(pData, pClient->GetPacket().strData.size(),&length);
+					LARGE_INTEGER bg = { 0 };
+					pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+					m_image.Load(pStream);
+					m_isFull = true;
+				}
+				pStream->Release();
+				GlobalFree(hMem);
+			}
+			else
+			{
+				Sleep(1);
+			}
+			
+		}
+		else
+		{
+			Sleep(1);
+		}
+	}
+}
+
+void CRemoteClientDlg::OnBnClickedButtonStartwatch()
+{
+	CWatchDialog dlg(this);
+	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
+	dlg.DoModal();
+
+	//SendCommandPacket(6,false);
+	
+}
+
+
+void CRemoteClientDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
 }
