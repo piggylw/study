@@ -270,6 +270,7 @@ public:
 		{
 			return false;
 		}
+		TRACE("SendData(CPacket& pack) pack.size = %d\r\n",pack.Size());
 		return send(m_socket, pack.Data(), pack.Size(), 0) > 0;
 	}
 	CPacket& GetPacket()

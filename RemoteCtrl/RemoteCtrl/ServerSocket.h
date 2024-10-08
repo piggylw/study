@@ -55,7 +55,7 @@ public:
 			nSize = 0;
 			return;
 		}
-		nLength = *(DWORD*)(pData + i);i += 4;
+		nLength = *(DWORD*)(pData + i);i += 4;  
 		if (nLength+i>nSize)//包没有完全接收到
 		{
 			nSize = 0;
@@ -278,6 +278,7 @@ public:
 		}
 		//此处不加slepp丢包
 		//Sleep(1);
+
 		return send(m_client, pack.Data(), pack.Size(), 0) > 0;
 	}
 	CPacket& GetPacket()

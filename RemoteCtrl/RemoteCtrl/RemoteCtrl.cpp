@@ -283,7 +283,7 @@ int SendScreen()
     {
         screen.Save(pStream, Gdiplus::ImageFormatPNG);
         LARGE_INTEGER bg = { 0 };
-        pStream->Seek(bg, STREAM_SEEK_SET, NULL);
+        pStream->Seek(bg, STREAM_SEEK_SET, NULL);  
         PBYTE pData = (PBYTE)GlobalLock(hMem);
         SIZE_T nSize = GlobalSize(hMem);
         CPacket pack(6, pData, nSize);

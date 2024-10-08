@@ -83,6 +83,7 @@ int CRemoteClientDlg::SendCommandPacket(int nCmd,bool bAutoClose, BYTE* pData, s
 		return -1;
 	}
 	CPacket pack(nCmd, pData, nLength);
+	TRACE("nLength=%d\r\n", nLength);
 	ret = pClient->SendData(pack);
 	TRACE("send ret=%d\r\n", ret);
 	int cmd = pClient->DealCommand();
@@ -207,7 +208,8 @@ HCURSOR CRemoteClientDlg::OnQueryDragIcon()
 
 void CRemoteClientDlg::OnBnClickedButtonTest()
 {
-	SendCommandPacket(1981);
+	std::string str = "hello";
+	SendCommandPacket(1981,true,(BYTE*)str.c_str(),str.size());
 }
 
 
@@ -503,6 +505,11 @@ LRESULT CRemoteClientDlg::OnSendPacket(WPARAM wParam, LPARAM lParam)
 	{
 		CString strFile = (LPCSTR)lParam;
 		ret = SendCommandPacket(cmd, wParam & 1, (BYTE*)(LPCSTR)strFile, strFile.GetLength());
+	}
+		break;
+	case 5:
+	{
+		ret = SendCommandPacket(cmd, wParam & 1, (BYTE*)lParam, sizeof(MOUSEEV));
 	}
 		break;
 	case 6:
