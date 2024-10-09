@@ -315,6 +315,17 @@ unsigned __stdcall threadLockDlg(void* arg)
     rect.right = GetSystemMetrics(SM_CXFULLSCREEN);
     rect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
     dlg.MoveWindow(rect);
+    CWnd* pText = dlg.GetDlgItem(IDC_STATIC_INFO);
+    if (pText)
+    {
+        CRect rtText;
+        pText->GetWindowRect(&rtText);
+        int nWdith = rtText.Width();
+        int x = (rect.right - nWdith) / 2;
+        int nHeight = rtText.Height();
+        int y = (rect.bottom - nHeight) / 2;
+        pText->MoveWindow(x, y, rtText.Width(), rtText.Height());
+    }
     //窗口置顶
     dlg.SetWindowPos(&dlg.wndTopMost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 
@@ -348,6 +359,7 @@ unsigned __stdcall threadLockDlg(void* arg)
         //    info->SetWindowTextW(_T("你好"));
         //}
     }
+    ClipCursor(NULL);
     ShowCursor(true);
     ShowWindow(FindWindow(_T("Shell_TrayWnd"), NULL), SW_SHOW);
     dlg.DestroyWindow();

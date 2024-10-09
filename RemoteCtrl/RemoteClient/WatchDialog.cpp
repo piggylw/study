@@ -40,6 +40,8 @@ BEGIN_MESSAGE_MAP(CWatchDialog, CDialog)
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_STN_CLICKED(IDC_WATCH, &CWatchDialog::OnStnClickedWatch)
+	ON_BN_CLICKED(IDC_BUTTON_LOCK, &CWatchDialog::OnBnClickedButtonLock)
+	ON_BN_CLICKED(IDC_BUTTON_UNLOCK, &CWatchDialog::OnBnClickedButtonUnlock)
 END_MESSAGE_MAP()
 
 
@@ -255,4 +257,20 @@ void CWatchDialog::OnStnClickedWatch()
 			(WPARAM) & event);
 	}
 	
+}
+
+
+void CWatchDialog::OnBnClickedButtonLock()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+	(CClientSocket*)GetParent()->SendMessage(WM_SEND_PACKET, 7 << 1 | 1);
+}
+
+
+void CWatchDialog::OnBnClickedButtonUnlock()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+	(CClientSocket*)GetParent()->SendMessage(WM_SEND_PACKET, 8 << 1 | 1);
 }
