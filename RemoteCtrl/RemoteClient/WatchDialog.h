@@ -22,6 +22,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	int m_nObjWidth, m_nObjHeight;
 	CPoint USerPoint2RemoteScreenPoint(CPoint& point, bool isScreen=false);
 	virtual BOOL OnInitDialog();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

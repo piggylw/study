@@ -144,7 +144,7 @@ BOOL CRemoteClientDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	UpdateData();
 	m_port = _T("9999");
-	m_server_address = 0x7F000001;
+	m_server_address = 0xC0A80381;  // 192.168.3.129
 	UpdateData(FALSE);
 
 	m_dlgStatus.Create(IDD_DIALOG_STATUS, this);
@@ -539,8 +539,8 @@ void CRemoteClientDlg::threadWatchData()
 	{
 		pClient = CClientSocket::getInstance();
 	} while (pClient == NULL);
-	ULONGLONG tick = GetTickCount64();
-	for (;;)
+
+	while (!m_isClosed)
 	{
 
 		if (m_isFull == false)
@@ -586,11 +586,12 @@ void CRemoteClientDlg::threadWatchData()
 
 void CRemoteClientDlg::OnBnClickedButtonStartwatch()
 {
+	m_isClosed = false;
 	CWatchDialog dlg(this);
-	_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
+	HANDLE hThread = (HANDLE)_beginthread(CRemoteClientDlg::threadEntryForWatchData, 0, this);
 	dlg.DoModal();
-
-	//SendCommandPacket(6,false);
+	m_isClosed = true;
+	WaitForSingleObject(hThread, 500);
 	
 }
 

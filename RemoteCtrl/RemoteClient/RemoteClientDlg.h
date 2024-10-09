@@ -74,6 +74,7 @@ public:
 private:
 	CImage m_image;//图片缓存
 	bool m_isFull;//缓存有无数据，true有
+	bool m_isClosed;//监控是否关闭
 public:
 	afx_msg void OnBnClickedButtonTest();
 	DWORD m_server_address;

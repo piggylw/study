@@ -249,7 +249,7 @@ int MouseEvent()
             break;
 
         case 0x08://单纯鼠标移动
-            mouse_event(MOUSEEVENTF_MOVE, mouse.ptXY.x, mouse.ptXY.y, 0, GetMessageExtraInfo());
+            //mouse_event(MOUSEEVENTF_MOVE, mouse.ptXY.x, mouse.ptXY.y, 0, GetMessageExtraInfo());
             break;
         }
         CPacket pack(5, NULL, 0);
