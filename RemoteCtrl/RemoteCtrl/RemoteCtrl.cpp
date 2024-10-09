@@ -160,13 +160,12 @@ int DownLoadFile()
 int MouseEvent()
 {
     MOUSEEV mouse;
-    if (CServerSocket::getInstance()->GetMouseEvent(mouse))
-    {
+    if (CServerSocket::getInstance()->GetMouseEvent(mouse)) {
         DWORD nFlags = 0;
-        switch (mouse.nButton)
-        {
+        switch (mouse.nButton) {
         case 0://左键
             nFlags = 1;
+            break;
         case 1://右键
             nFlags = 2;
             break;
@@ -176,16 +175,11 @@ int MouseEvent()
         case 4://没有按键
             nFlags = 8;
             break;
-        
         }
-        if (nFlags != 8)
-        {
-            SetCursorPos(mouse.ptXY.x, mouse.ptXY.y);
-        }
-
+        if (nFlags != 8)SetCursorPos(mouse.ptXY.x, mouse.ptXY.y);
         switch (mouse.nAction)
         {
-        case 0://单机
+        case 0://单击
             nFlags |= 0x10;
             break;
         case 1://双击
@@ -194,70 +188,63 @@ int MouseEvent()
         case 2://按下
             nFlags |= 0x40;
             break;
-        case 3://放开         
+        case 3://放开
             nFlags |= 0x80;
             break;
         default:
             break;
-
         }
+        TRACE("mouse event : %08X x %d y %d\r\n", nFlags, mouse.ptXY.x, mouse.ptXY.y);
         switch (nFlags)
         {
         case 0x21://左键双击
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, GetMessageExtraInfo());
-        case 0x11://左键单机
-            mouse_event(MOUSEEVENTF_LEFTDOWN,0,0,0,GetMessageExtraInfo());
-            mouse_event(MOUSEEVENTF_LEFTUP,0,0,0,GetMessageExtraInfo());
+        case 0x11://左键单击
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
         case 0x41://左键按下
             mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, GetMessageExtraInfo());
             break;
         case 0x81://左键放开
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
         case 0x22://右键双击
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, GetMessageExtraInfo());
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, GetMessageExtraInfo());
-        case 0x12://右键单机
+        case 0x12://右键单击
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, GetMessageExtraInfo());
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
         case 0x42://右键按下
             mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, GetMessageExtraInfo());
             break;
-        case 0x82://右键松开
+        case 0x82://右键放开
             mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
-        case 0x24://中建双击
+        case 0x24://中键双击
             mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, GetMessageExtraInfo());
             mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, GetMessageExtraInfo());
-        case 0x14://中键单机
+        case 0x14://中键单击
             mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, GetMessageExtraInfo());
             mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
-        case 0x44://中建按下
+        case 0x44://中键按下
             mouse_event(MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, GetMessageExtraInfo());
             break;
-        case 0x84://中建松开
+        case 0x84://中键放开
             mouse_event(MOUSEEVENTF_MIDDLEUP, 0, 0, 0, GetMessageExtraInfo());
             break;
-
-        case 0x08://单纯鼠标移动
-            //mouse_event(MOUSEEVENTF_MOVE, mouse.ptXY.x, mouse.ptXY.y, 0, GetMessageExtraInfo());
+        case 0x08://单纯的鼠标移动
+            mouse_event(MOUSEEVENTF_MOVE, mouse.ptXY.x, mouse.ptXY.y, 0, GetMessageExtraInfo());
             break;
         }
         CPacket pack(5, NULL, 0);
         CServerSocket::getInstance()->SendData(pack);
     }
-    else
-    {
-        OutputDebugString(_T("获取鼠标参数失败"));
+    else {
+        OutputDebugString(_T("获取鼠标操作参数失败！！"));
         return -1;
     }
     return 0;

@@ -144,7 +144,7 @@ BOOL CRemoteClientDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	UpdateData();
 	m_port = _T("9999");
-	m_server_address = 0xC0A80381;  // 192.168.3.129
+	m_server_address = 0xC0A80381;  // 192.168.3.129 0xC0A80381
 	UpdateData(FALSE);
 
 	m_dlgStatus.Create(IDD_DIALOG_STATUS, this);

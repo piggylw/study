@@ -231,7 +231,7 @@ void CWatchDialog::OnMouseMove(UINT nFlags, CPoint point)
 		event.ptXY = remote;
 		event.nButton = 8;
 		event.nAction = 0;//移动
-
+		TRACE("移动\r\n");
 		(CClientSocket*)GetParent()->SendMessage(WM_SEND_PACKET, 5 << 1 | 1,
 			(WPARAM) & event);
 	}
@@ -243,19 +243,19 @@ void CWatchDialog::OnMouseMove(UINT nFlags, CPoint point)
 void CWatchDialog::OnStnClickedWatch()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	if ((m_nObjHeight != -1) && (m_nObjWidth != -1))
-	{
-		CPoint point;
-		GetCursorPos(&point);
-		CPoint remote = USerPoint2RemoteScreenPoint(point,true);
-		MOUSEEV event;
-		event.ptXY = remote;
-		event.nButton = 0;
-		event.nAction = 0;//d单机
-		TRACE("左键单机\r\n");
-		(CClientSocket*)GetParent()->SendMessage(WM_SEND_PACKET, 5 << 1 | 1,
-			(WPARAM) & event);
-	}
+	//if ((m_nObjHeight != -1) && (m_nObjWidth != -1))
+	//{
+	//	CPoint point;
+	//	GetCursorPos(&point);
+	//	CPoint remote = USerPoint2RemoteScreenPoint(point,true);
+	//	MOUSEEV event;
+	//	event.ptXY = remote;
+	//	event.nButton = 0;
+	//	event.nAction = 0;//d单机
+	//	TRACE("左键单机\r\n");
+	//	(CClientSocket*)GetParent()->SendMessage(WM_SEND_PACKET, 5 << 1 | 1,
+	//		(WPARAM) & event);
+	//}
 	
 }
 
