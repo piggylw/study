@@ -149,6 +149,7 @@ protected:
             FILEINFO finfo;
             finfo.HasNext = FALSE;
             lstPacket.push_back(CPacket(2, (BYTE*)&finfo, sizeof(finfo)));
+            _findclose(hfind);
             return -3;
         }
         do
@@ -158,7 +159,7 @@ protected:
             memcpy(finfo.szFileName, fdata.name, strlen(fdata.name));
             lstPacket.push_back(CPacket(2, (BYTE*)&finfo, sizeof(finfo)));
         } while (_findnext(hfind, &fdata) == 0);
-
+        _findclose(hfind);
         FILEINFO finfo;
         finfo.HasNext = FALSE;
         lstPacket.push_back(CPacket(2, (BYTE*)&finfo, sizeof(finfo)));
@@ -201,7 +202,11 @@ protected:
             } while (rlen >= 1024);
             fclose(pFile);
         }
-        lstPacket.push_back(CPacket(4, NULL, 0));
+        else
+        {
+            lstPacket.push_back(CPacket(4, NULL, 0));
+        }
+        
         return 0;
     }
 

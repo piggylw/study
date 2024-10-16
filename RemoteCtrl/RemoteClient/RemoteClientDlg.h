@@ -5,7 +5,6 @@
 #pragma once
 #include "StatusDlg.h"
 
-#define WM_SEND_PACKET (WM_USER+1)
 
 // CRemoteClientDlg 对话框
 class CRemoteClientDlg : public CDialogEx
@@ -36,17 +35,17 @@ private:
 	1981 测试连接
 	返回值：命令号，小于0=错误
 	*/
-	int SendCommandPacket(int nCmd,bool bAutoClose=true,BYTE* pData=NULL,size_t nLength = 0);
+	//int SendCommandPacket(int nCmd,bool bAutoClose=true,BYTE* pData=NULL,size_t nLength = 0);
 
 	CString GetPath(HTREEITEM hTree);
 	void DeleteTreeChildItem(HTREEITEM hTreeSelect);
 	void LoadFileInfo();
 	void LoadFileCurrent();
-	static void threadEntryForDownFile(void*);
-	void threadDownFile();
+	//static void threadEntryForDownFile(void*);
+	//void threadDownFile();
 
-	static void threadEntryForWatchData(void*);
-	void threadWatchData();
+	//static void threadEntryForWatchData(void*);
+	//void threadWatchData();
 // 实现
 protected:
 	HICON m_hIcon;
@@ -58,23 +57,8 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
-public:
-	bool isFull() const
-	{
-		return m_isFull;
-	}
-	CImage& GetImage()
-	{
-		return m_image;
-	}
-	void SetImageStatus(bool isFull = false)
-	{
-		m_isFull = isFull;
-	}
-private:
-	CImage m_image;//图片缓存
-	bool m_isFull;//缓存有无数据，true有
-	bool m_isClosed;//监控是否关闭
+
+
 public:
 	afx_msg void OnBnClickedButtonTest();
 	DWORD m_server_address;
@@ -89,7 +73,8 @@ public:
 	afx_msg void OnDownloadFile();
 	afx_msg void OnDelteteFile();
 	afx_msg void OnRunFile();
-	afx_msg LRESULT OnSendPacket(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedButtonStartwatch();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnIpnFieldchangedIpaddressServer(NMHDR* pNMHDR, LRESULT* pResult);
+	afx_msg void OnEnChangeEdit1Port();
 };

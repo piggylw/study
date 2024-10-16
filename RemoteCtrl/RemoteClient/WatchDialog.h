@@ -17,7 +17,23 @@ public:
 	enum { IDD = IDD_DIALOG_WATCH };
 #endif
 
+public:
+	CImage& GetImage()
+	{
+		return m_image;
+	}
+	void SetImageStatus(bool isFull = false)
+	{
+		m_isFull = isFull;
+	}
+	bool isFull() const
+	{
+		return m_isFull;
+	}
 protected:
+	bool m_isFull;
+	CImage m_image;
+	
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
